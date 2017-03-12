@@ -1,0 +1,62 @@
+
+<h1>FORMULARIO DE ACCESO A HOGWARTS</h1>
+<div id="registro">
+  <h2>Registro</h2>
+  <form type="text" method="get">
+    <strong>Nombre: </strong>
+    <br>
+    <br>
+    <input type="text" name="nombre" placeholder="Nombre" required>
+    <input type="text" name="apellido1" placeholder="Primer pellido" required>
+    <input type="text" name="apellido2" placeholder="Segundo pellido">
+    <br>
+    <br>
+    <strong>Correo electrónico: </strong>
+    <br>
+    <br>
+    <input type="email" name="correo" placeholder="ejemplo@ejemplo.com" required>
+    <br>
+    <br>
+    <strong>Nueva contraseña: </strong>
+    <br>
+    <br>
+    <input type="password" name="contraseña1" required>
+    <br>
+    <br>
+    <strong>Fecha de nacimiento: </strong>
+    <br>
+    <br>
+    <input type="date" name="fecha" min="1900-01-01" max="2015-12-15" autocomplete="off" required>
+    <br>
+    <br>
+    <label for="sexo" required>
+        ¿Procede usted de una familia muggle?
+      <input type="radio" name="sexo" value="M"> Si.
+      <input type="radio" name="sexo" value="F"> No.
+    </label>
+    <br>
+    <br>
+    <strong>¿Cómo se dió cuenta de sus poderes? </strong>
+    <br>
+    <br>
+    <textarea rows="15" cols="70" placeholder= "Explique brevemente..." required></textarea>
+    <br />
+    <br />
+    <strong>¿A qué Casa le gustaría pertenecer? </strong>
+    <select name="listado_casas" required>
+      <option value="1">Gryffindor</option>
+      <option value="2">Hufflepuff</option>
+      <option value="3">Ravenclaw</option>
+      <option value="3">Slytherin</option>
+    </select>
+    <br>
+    <br>
+    <input type="submit" value="Enviar">
+    <input type="reset" value="Borrar">
+    <br />
+    <br />
+    <img src="http://vignette3.wikia.nocookie.net/jspotter/images/1/18/Hogwarts_Crest_1.png/revision/latest?cb=20140720035204" width="180" height="230" />
+  </form>
+
+
+</div>

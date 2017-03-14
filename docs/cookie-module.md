@@ -40,11 +40,95 @@ En este caso, la cookie tiene nombre `comida` y como valor `macarrones` y, aplic
 
 #### Opciones del método
 ##### ``domain``
+Esta opción especifica el valor del atributo `DomainSet-Cookie`. Por defecto no se establece ningún dominio. y la mayoría de cliente considerará sólo aplicar la cookie al dominio actual. Por razones de seguridad obvias, las cookies sólo se pueden establecer en el dominio superior del recurso actual y sus subdominios, y no para otro dominio y sus subdominios.
 ##### ``encode``
+Esta opción especifica una función que será usada para codificar el valor de una cookie. Puesto que el valor de una cookie tiene un conjunto de caracteres limitado (y debe ser una cadena simple), esta función puede ser utilizada para codificar un valor en una cadena adaptada al valor de una cookie.
+
+La función por defecto es la función global `ecodeURIComponent`, que codificará una cadena Javascript en secuencias de bytes UTF-8 y, a continuación, codificará la URL que esté fuera del intervalo de cookies.
+
+##### ``expires``
+Especifica el objeto `Date` para que se el valor del atributo `Expires Set-Cookie`. Por defecto, no se establece ninguna expiración, y la mayoría de clientes considerará el cookie como un "cookie no persistente" y se eliminará con una determinada condición como, por ejemplo, salir de una aplicación del navegador.
+
+##### ``httpOnly``
+Especifica el valor booleano para el atributo `HttpOnly Set-Cookie`. Cuando es verdadero, el atributo `HttpOnly` se establece, en otro caso no. Por defecto, este atributo no está establecido. Este indicador se utiliza al generar una cookie para ayudar a mitigar el riesgo de que el script del cliente acceda a la cookie protegida (si el navegador lo admite).
+
+##### ``maxAge``
+Especifica el número (en segundos) el valor del atributo ` Max-Age Set-Cookie`. El valor dado será convertido en un entero redondeando por debajo. Por defecto, no se establece ningún tiempo máximo.
+
+Nota: Si ambos atributos, `expires` y `magAge`, se establecen, el atributo `maxAge` tiene precedencia, pero es posible que no todos los clientes obedecen esto, por lo que, si ambos se establecen, deben apuntar a la misma fecha y tiempo.
+
+##### ``path``
+Especifica el valor para el atributo `Path Set-Cookie`. Por defecto, el path es considerado el "path por defecto". Este campo indica la URL que debe existir en el recurso requerido antes de enviar la cabecera Cookie. Por ejemplo:
+
+##### ``sameSite``
+Especifica el booleano o cadena para que sea el valor del atributo ` SameSite Set-Cookie`. Este atributo se puede utilizar para deshabilitar el uso de terceros para una cookie específica. Es establecido por el servidor al configurar la cookie y solicita al navegador que solo envíe la cookie en un contexto de primera persona, es decir, cuando estas utilizando la aplicación web directamente. Cuando otro sitio intenta solicitar algo de la aplicación web, la cookie no se envía.
+
+  * **true** establecerá el atributo a `Strict` para la aplicación estricta en el mismo sitio. La cookie se retiene con cualquier uso de cross-site. Incluso cuando el usuario sigue un enlace a otro sitio web, la cookie no se envía.
+
+  * **false** no establecerá el atributo .
+  * **'lax'** establecerá el atributo a `Lax`. En modo laxo, se permite el uso de cross-site, sspecíficamente si la solicitud es una solicitud GET y la solicitud es de nivel superior. Nivel superior significa que la URL de la barra de direcciones cambia debido a esta navegación.
+  * **'strict'** establecerá el atributo a `Strict` para la aplicación estricta en el mismo sitio.
+
+Nota: Esta atributo no ha sido totalmente estandarizado, y puede cambiar en el futuro. Esto significa que muchos clientes pueden ignorar este atributo hasta que lo entiendan.
+
+##### ``secure``
+Especifica el valor booleano para el atributo `Secure Set-Cookie`. A diferencia de las otras opciones, esto es sólo un indicador y no tiene ningún valor adicional especificado. Una **cookie segura** sólo se enviará al servidor cuando se realice una solicitud utilizando **SSL** y el protocolo **HTTPS**. La idea de que el contenido de la cookie es de alto valor y podría ser potencialmente perjudicial para transmitir como texto claro.
+
+Cuando el valor es verdadero, se establece el atributo. Por defecto no está establecido.
+
+
+Un ejemplo que contiene una cookie con todos estos campos es el siguiente:
+
+```
+Set-Cookie: name=Nicholas; domain=nczonline.net; path=/blog; secure
+
+```
+
+### Ejemplo
+El siguiente ejemplo usa este módulo en conjunción con un servidor HTTP con núcleo Node.js para pedir el nombre al usuario y mostrarlo en futuras visitas.
 
 ```javascript
-cookie.serialize('name', String(query.name), {
-     httpOnly: true,
-     maxAge: 60 * 60 * 24 * 7 // 1 week
-}));
+var cookie = require('cookie');
+var escapeHtml = require('escape-html');
+var http = require('http');
+var url = require('url');
+
+function onRequest(req, res) {
+  // Parse the query string
+  var query = url.parse(req.url, true, true).query;
+
+  if (query && query.name) {
+    // Set a new cookie with the name
+    res.setHeader('Set-Cookie', cookie.serialize('name', String(query.name), {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 7 // 1 week
+    }));
+
+    // Redirect back after setting cookie
+    res.statusCode = 302;
+    res.setHeader('Location', req.headers.referer || '/');
+    res.end();
+    return;
+  }
+
+  // Parse the cookies on the request
+  var cookies = cookie.parse(req.headers.cookie || '');
+
+  // Get the visitor name set in the cookie
+  var name = cookies.name;
+
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
+  if (name) {
+    res.write('<p>Welcome back, <b>' + escapeHtml(name) + '</b>!</p>');
+  } else {
+    res.write('<p>Hello, new visitor!</p>');
+  }
+
+  res.write('<form method="GET">');
+  res.write('<input placeholder="enter your name" name="name"> <input type="submit" value="Set Name">');
+  res.end('</form');
+}
+
+http.createServer(onRequest).listen(3000);
 ```

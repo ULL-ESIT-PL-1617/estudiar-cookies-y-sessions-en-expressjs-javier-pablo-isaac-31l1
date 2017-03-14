@@ -4,6 +4,11 @@ Es una función middleware de sesión simple basado en cookies. El hecho de que 
 ## Instalación y uso
 Para instalar este módulo es necesario tener instalado [npm](https://docs.npmjs.com/), ya que es un módulo **Node.js** disponible a través del repositorio **npm**. El comando para instalar el módulo es el siguiente: `npm install cookie-session`
 
+Para utilizar el módulo, hay que requerirlo y guardarlo en un objeto :
+```javascript
+var cookieSession = require('cookie-session')
+```
+
 ## API del módulo
 Este módulo dispone de una serie de métodos que se decriben a continuación.
 
@@ -53,4 +58,22 @@ Es verdadero si la sesión es nueva.
 ###### .isPopulated
 Determina si se le ha añadido datos a la sesión o está vacía
 
-### `req.session)`
+### `req.sessionOptions`
+Representa las opciones de sesión para la petición actual. Estas opciones son una copia superficial de lo que se proveyó en la construcción de la función middleware y se pueden alterar cambiando el comportamiento de la cookie o cambiando la base por petición realizada.
+
+### Destruyendo una sesión
+Para destruir una sesión simplemente hay que establecerla a nula:
+```javascript
+req.session = null
+```
+
+## Limitaciones de uso
+
+## Máximo tamaño de la cookie
+Debido a que objeto de sesión entero está codificado y guardado en una cookie, es posible que se supere el límite de tamaño máximo de la cookie en diferentes navegadores. Se recomienda que un navegador deba permitir al menos **4096 bytes** de tamaño por cookie (medido como la suma de la longitud del nombre de la cookie, el valor y los atributos).
+
+En la práctica este límite difiere entre los navegadores. Como regla de oro se aconseja no exceder **4093 bytes de tamaño por dominio**
+
+Si el objeto de sesión es _suficientemente grande_ para exceder el límite del navegador cuando sea codificado, en la mayoría de casos el navegador rehusará de almacenar la cookie. Esto causará que las siguientes peticiones desde el navegador no tengan ningún tipo de información de sesión o que se utilice información de sesión antigua que sea suficientemente pequeña para no exceder el límite del cookie.
+
+Si te das cuenta de que el objeto de sesión supera ese límite, es mejor considerar si los datos en la sesión deben ser cargados de una _base de datos_ dentro del servidor en lugar de transmitir hacia/desde el navegador con cada petición.

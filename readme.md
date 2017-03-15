@@ -18,9 +18,9 @@
 
 **Importante:** El puerto por defecto es siempre 3000.
 
-* [Heroku]()
-* [Gh-pages]()
-* [Gitbook]()
+* [Heroku](https://intense-gorge-14629.herokuapp.com)
+* [Gh-pages](https://ull-esit-pl-1617.github.io/estudiar-cookies-y-sessions-en-expressjs-javier-pablo-isaac-31l1/)
+* [Gitbook](https://alu0100890839.gitbooks.io/rutas-express/content/)
 * IAAS:
   * [Pablo Pastor Martín](http://10.6.128.120:8081)
   * [Isaac Aimán Salas](http://10.6.128.92:8081)

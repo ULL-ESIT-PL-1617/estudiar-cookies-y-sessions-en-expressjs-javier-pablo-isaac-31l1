@@ -76,6 +76,18 @@ gulp.task('session_auth', function() {
 	});
 });
 
+gulp.task('server', function() {
+	var child = exec('node server', function(error, stdout, stderr) {
+
+		if (error) {
+ 		   console.error(`exec error: ${error}`);
+    		   return;
+ 		}
+		console.log(`stdout: ${stdout}`);
+		console.log(`stderr: ${stderr}`);
+	});
+});
+
 gulp.task('deploy', function() {
 ghpages.publish(path.join(__dirname, '_book'), function(err) {
       console.log('publicado en gh-pages');

@@ -1,4 +1,4 @@
-# Autenticación de sesión en node.js con express
+# Ejemplo de autenticación de sesión en node.js con express
 
 La **autenticación** es el proceso de verificar si un usuario es quien dice
 ser. La **autorización** es el proceso de determinar si un usuario tiene los

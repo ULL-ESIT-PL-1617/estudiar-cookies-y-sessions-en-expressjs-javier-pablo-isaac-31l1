@@ -69,6 +69,7 @@ req.session = null
 
 ## Limitaciones de uso
 
+
 ## Máximo tamaño de la cookie
 Debido a que objeto de sesión entero está codificado y guardado en una cookie, es posible que se supere el límite de tamaño máximo de la cookie en diferentes navegadores. Se recomienda que un navegador deba permitir al menos **4096 bytes** de tamaño por cookie (medido como la suma de la longitud del nombre de la cookie, el valor y los atributos).
 
@@ -77,3 +78,88 @@ En la práctica este límite difiere entre los navegadores. Como regla de oro se
 Si el objeto de sesión es _suficientemente grande_ para exceder el límite del navegador cuando sea codificado, en la mayoría de casos el navegador rehusará de almacenar la cookie. Esto causará que las siguientes peticiones desde el navegador no tengan ningún tipo de información de sesión o que se utilice información de sesión antigua que sea suficientemente pequeña para no exceder el límite del cookie.
 
 Si te das cuenta de que el objeto de sesión supera ese límite, es mejor considerar si los datos en la sesión deben ser cargados de una _base de datos_ dentro del servidor en lugar de transmitir hacia/desde el navegador con cada petición.
+
+# Ejemplos
+## Ejemplo de un contador de visitas
+```javascript
+var cookieSession = require('cookie-session') //Se cargar el módulo cookie-session en la variable "cookieSession".
+var express = require('express') //Se carga express en la variable "express".
+
+var app = express()  //Crea una aplicación express.
+
+app.set('trust proxy', 1) // La aplicación express está detrás de un proxy
+
+//Se crea una nueva función middleware de cookie session.
+app.use(cookieSession({
+  name: 'session',        //Nombre de la cookie : session
+  keys: ['key1', 'key2'] //Lista de claves para verificar
+}))
+
+//Función que maneja el request al camino raíz.
+app.get('/', function (req, res, next) {
+  //Se actualiza el número de visitas cada vez que el usuario visita la página.
+  req.session.views = (req.session.views || 0) + 1
+
+  //Se escribe la actualización de nuevo en la página.
+  res.end(req.session.views + ' views')
+})
+
+//Se ejecuta la aplicación en el puerto 3000.
+app.listen(3000)
+
+```
+
+## Ejemplo para establecer el tiempo máximo de la sesión por usuario
+```javascript
+var cookieSession = require('cookie-session') //Se cargar el módulo cookie-session en la variable "cookieSession".
+var express = require('express') //Se carga express en la variable "express".
+
+var app = express() //Crea una aplicación express.
+
+app.set('trust proxy', 1) // La aplicación express está detrás de un proxy.
+
+//Se crea una nueva función middleware de cookie session.
+app.use(cookieSession({
+  name: 'session',     //Nombre de la cookie : session.
+  keys: ['key1', 'key2'] //Lista de claves para verificar.
+}))
+
+// This allows you to set req.session.maxAge to let certain sessions
+// have a different value than the default.
+/*Esta función middleware permite establecer el tiempo máximo de la sesión a otro
+ * valor diferente al de por defecto.
+ */
+app.use(function (req, res, next) {
+  req.sessionOptions.maxAge = req.session.maxAge || req.sessionOptions.maxAge //S
+  next() //Se llama a la siguiente función middleware.
+})
+
+```
+
+## Ejemplo para extender la expiración de la sesión.
+Este módulo no envía un encabezado `Set-Cookie` si el contenido de la sesión no ha cambiado. Esto significa que, para extender la expiración de una sesión en el navegador del usuario (en respuesta a la actividad del usuario, por ejemplo),  se debe realizar algún tipo de modificación en la sesión.
+
+```javascript
+var cookieSession = require('cookie-session') //Se cargar el módulo cookie-session en la variable "cookieSession".
+var express = require('express') //Se carga express en la variable "express".
+
+var app = express() //Crea una aplicación express.
+//Se crea una nueva función middleware de cookie session.
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
+/**
+*Se establece una propiedad a session llamada "nowInMinutes" que
+*guarda el numero minutos desde el 1 de Enero de 1970 00:00:00 UTC. Esto se hace
+*para que haya un cambio en la sesión y se pueda extender su tiempo de expiración.
+*/
+app.use(function (req, res, next) {
+  req.session.nowInMinutes = Math.floor(Date.now() / 60e3)
+  next()
+})
+
+app.listen(3000)
+
+
+```
